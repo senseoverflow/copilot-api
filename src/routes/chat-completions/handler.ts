@@ -39,7 +39,15 @@ export async function handleCompletion(c: Context) {
 
   if (state.manualApprove) await awaitApproval()
 
-  if (isNullish(payload.max_tokens)) {
+  // Only default max_tokens when the client hasn't set either it or its
+  // OpenAI-newer counterpart max_completion_tokens: some models (e.g.
+  // gpt-5.x) reject requests carrying both, so defaulting max_tokens here
+  // whenever the client sent max_completion_tokens alone broke those
+  // requests outright.
+  if (
+    isNullish(payload.max_tokens)
+    && isNullish(payload.max_completion_tokens)
+  ) {
     payload = {
       ...payload,
       max_tokens: selectedModel?.capabilities.limits.max_output_tokens,

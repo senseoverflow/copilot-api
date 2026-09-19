@@ -130,6 +130,11 @@ export interface ChatCompletionsPayload {
   temperature?: number | null
   top_p?: number | null
   max_tokens?: number | null
+  // Some models (e.g. GitHub Copilot's gpt-5.x family) reject `max_tokens`
+  // outright and only accept `max_completion_tokens`. Both are forwarded
+  // to the upstream Copilot API as-is; see handleCompletion, which must not
+  // default `max_tokens` when this is already set.
+  max_completion_tokens?: number | null
   stop?: string | Array<string> | null
   n?: number | null
   stream?: boolean | null
